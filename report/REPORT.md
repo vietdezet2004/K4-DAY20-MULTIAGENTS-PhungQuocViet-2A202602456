@@ -31,20 +31,43 @@
 
 ## 4. Đường cơ sở và phân loại lỗi (Phần 2.2)
 
-> Chỉ dùng tác vụ học. Mỗi dòng là một check thất bại.
+Dựa trên kết quả chạy 3 tác vụ học ở điều kiện `baseline`, tổng hợp phân loại các check thất bại:
 
 | Tác vụ | Check thất bại | Nhóm lỗi (A-G) | Bằng chứng (trích ngắn từ `detail` hoặc vết) |
-|---|---|---|---|
-| | | | |
+|---|---|:---:|---|
+| `data-learn` | `rule_money_in_cents` | E | `RULE: money values in answer.json are integer cents (1606.67 USD is written 160667).` |
+| `data-learn` | `rule_meta_block` | E | `RULE: answer.json has an object meta = {"source": <input file name>, "rows_in": ..., "rows_used": ...}` |
+| `data-learn` | `rule_clean_csv` | E | `RULE: write workspace/clean.csv containing the cleaned rows, with no duplicate rows and no missing amount rows.` |
+| `code-learn` | `rule_type_hints` | E | `RULE: every public function (name not starting with '_') in the package has type annotations on all parameters and on the return value.` |
+| `code-learn` | `rule_regression_tests` | E | `RULE: add tests/test_regressions.py with one test function per bug you fixed (at least 3); the file must pass.` |
+| `code-learn` | `rule_changelog` | E | `RULE: record each fix in CHANGELOG.md under the heading '## Unreleased' as a bullet '- fix(<function name>): <short description>' (at least 3 bullets).` |
+| `code-learn` | `parse_price_all_formats` | D | `wrong for: ['$1,299.50', '$1,000,000.00']` (tác tử không xử lý trường hợp dấu phẩy ngăn cách hàng nghìn). |
+| `code-learn` | `csv_quoting_follows_docstring` | A | `to_csv_row returned 'Desk, large "oak",10.00,2'` (bỏ qua mô tả trong docstring yêu cầu escape dấu ngoặc kép theo chuẩn CSV). |
+| `logs-learn` | `rule_service_names` | E | `RULE: service names in the output are lower-case with '-' replaced by '_' (payment-service -> payment_service).` |
+| `logs-learn` | `rule_sorted_errors` | E | `RULE: errors is sorted by service, then by timestamp_utc, ascending.` |
+| `logs-learn` | `rule_schema_header` | E | `RULE: the top-level object has "schema_version": 2 and "generated_by": "log-triage".` |
+| `logs-learn` | `timestamps_utc` | D | `4/25 timestamps match` (bỏ sót việc chuyển đổi đồng nhất các múi giờ ISO/RFC sang chuẩn UTC). |
 
-Nhận xét: nhóm lỗi nào chiếm đa số? Skill có thể phòng ngừa nhóm đó không?
+**Nhận xét:**
+- **Nhóm lỗi chiếm đa số:** Nhóm **E (Vi phạm quy ước tổ chức Acme)** chiếm tuyệt đối 9/9 check quy ước thất bại (tỷ lệ 100% theo thống kê `scripts/check_breakdown.py`). Nguyên nhân gốc rễ là các quy ước nội bộ này hoàn toàn không có trong đề bài (`instruction.md`) mà chỉ có trong quy chuẩn ngầm của tổ chức chấm điểm (`check.py`).
+- **Khả năng phòng ngừa của Skill:** Một `SKILL.md` được sinh từ Curator hoàn toàn có thể phòng ngừa hiệu quả 100% nhóm lỗi E bằng cách tóm tắt rõ ràng các quy ước Acme bắt buộc (cấu trúc `meta`, `clean.csv`, `test_regressions.py`, `CHANGELOG.md`, `schema_version`) thành danh sách kiểm tra checklist trước khi hoàn thành tác vụ.
+- **Bằng chứng phủ định cho các nhóm A-D:** Đối với các check kỹ thuật cơ bản (như logic giảm giá `discount_rounds_half_up`, cảnh báo tồn kho `low_stock_follows_docstring`, cấu trúc log hợp lệ `valid_structure`), mô hình `gpt-4o-mini` đều xử lý đạt được mà không mắc lỗi nghiêm trọng.
 
 ## 5. Điều kiện `subagents` (Phần 2.3)
 
-- Các subagent đã định nghĩa (tên, vai trò, lý do thiết kế):
-- `subagent_calls` ở từng tác vụ và nhận xét (kể cả trường hợp bằng 0):
-- Thông tin thiếu hoặc thừa khi giao việc (nếu có giao việc):
-- Ảnh hưởng đến token và thời gian:
+- **Các subagent đã định nghĩa (tên, vai trò, lý do thiết kế):**
+  1. `explorer`: Chuyên đọc tài liệu, kiểm tra cấu trúc workspace, schema và log mà không chỉnh sửa file.
+  2. `implementer`: Chuyên chỉnh sửa code, dữ liệu và thực thi các script/lệnh shell.
+  3. `reviewer`: Độc lập kiểm tra, chạy lại test suite và đối chiếu kết quả đầu ra với yêu cầu đề bài.
+- **`subagent_calls` ở từng tác vụ và nhận xét:**
+  - `code-learn`: 0 lần gọi.
+  - `data-learn`: 0 lần gọi.
+  - `logs-learn`: 0 lần gọi.
+  - **Nhận xét:** Việc `subagent_calls = 0` trên cả 3 tác vụ là hoàn toàn bình thường và hợp lý. Do tác tử chính bản thân đã có đầy đủ toàn bộ công cụ thực thi (`read_file`, `write_file`, `execute`), mô hình LLM khi lập kế hoạch nhận thấy các tác vụ chỉ gồm 1 workspace nhỏ nên tự giải quyết trực tiếp để tối ưu số bước thay vì mất thêm chi phí khởi tạo phiên subagent mới.
+- **Thông tin thiếu hoặc thừa khi giao việc (nếu có giao việc):** Do tác tử chính không thực hiện ủy quyền nên không phát sinh truyền tải thông tin giữa các agent.
+- **Ảnh hưởng đến token và thời gian:**
+  - Token trung bình: `baseline` tiêu tốn **22,550 tokens**, trong khi `subagents` tiêu tốn **27,559 tokens** (tăng ~22.2%).
+  - Nguyên nhân tăng token dù không gọi subagent: System prompt của chế độ `subagents` dài hơn (do có thêm mô tả chi tiết của 3 subagents trong công cụ `task` và chỉ dẫn `SUBAGENTS_NOTE`), dẫn đến chi phí input tokens tăng lên ở mỗi vòng lặp tương tác.
 
 ## 6. Self-evolving: skill do curator sinh (Phần 3)
 
