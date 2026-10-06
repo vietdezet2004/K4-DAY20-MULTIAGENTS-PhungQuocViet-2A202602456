@@ -17,9 +17,9 @@
 
 > Dự đoán điều kiện nào đạt điểm cao nhất trên **tác vụ đánh giá** và vì sao. Nêu căn cứ từ phân loại lỗi (mục 4) và từ tài liệu tham khảo. Điền cả ba dòng; `verify_freeze.py` kiểm tra điều này.
 
-- H1 (subagents so với baseline):
-- H2 (skills-auto so với baseline):
-- H3 (tác vụ học so với tác vụ đánh giá):
+- H1 (subagents so với baseline): Điều kiện `subagents` dự kiến không cải thiện đáng kể điểm số so với `baseline` trên tác vụ eval (điểm tương đương hoặc chênh lệch không quá 1 điểm), trong khi chi phí token tăng cao hơn (~10-20%). Căn cứ: Ở các bài toán kỹ thuật đơn lẻ, tác tử thường tự giải quyết mà không phân rã qua công cụ `task` (`subagent_calls = 0`), và việc chia nhỏ tác tử không thể tự khắc phục các lỗi thiếu thông tin quy ước nội bộ (Nhóm E).
+- H2 (skills-auto so với baseline): Điều kiện `skills-auto` dự kiến cải thiện điểm số mạnh trên tác vụ học (đặc biệt là các check quy ước nhóm E đã được đúc kết), nhưng trên tác vụ đánh giá (`eval`), mức độ cải thiện sẽ khiêm tốn hơn nhiều và chỉ phát huy tác dụng ở các quy ước dùng chung; nó không thể vượt qua các quy ước mới chưa từng xuất hiện trong tập học (phù hợp với hiện tượng context-level overfitting / generalization gap trong SkillsBench và SkillEvolBench).
+- H3 (tác vụ học so với tác vụ đánh giá): Điểm số trung bình trên tác vụ học (`learn`) sẽ cao hơn đáng kể so với tác vụ đánh giá (`eval`) trên cả ba điều kiện, đặc biệt ở `skills-auto`. Căn cứ: Tác vụ đánh giá chứa các trường hợp biên mới và các quy ước ẩn mới (chưa có trong vết chạy để curator học), tạo ra khoảng cách tổng quát hóa tự nhiên.
 
 ## 3. Làm quen Deep Agents (Phần 0.3)
 
