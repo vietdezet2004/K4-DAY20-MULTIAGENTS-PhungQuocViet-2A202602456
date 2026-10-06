@@ -71,11 +71,13 @@ Dựa trên kết quả chạy 3 tác vụ học ở điều kiện `baseline`, 
 
 ## 6. Self-evolving: skill do curator sinh (Phần 3)
 
-- Số lần chạy curator, số skill bị xóa và lý do:
+- **Số lần chạy curator, số skill bị xóa và lý do:** Chạy curator 1 lần (`python -m lab.curator`), sinh thành công 3/3 skill hợp lệ qua bộ lọc `validate_skill`. Không có skill nào bị xóa vì cả 3 skill đều ngắn gọn, đúng định dạng và không bị rò rỉ dữ liệu đánh giá.
 
 | Skill | Tổng quát hay riêng cho tác vụ học? | Đúng hay sai (nêu chỗ sai nếu có) | Độ dài, `description` và `skills_read` ở Phần 3.4 |
 |---|---|---|---|
-| | | | |
+| `organizational-conventions-check` | **Tổng quát**: Nêu quy chuẩn áp dụng chung cho coding (type annotations, `CHANGELOG.md`, `test_regressions.py`, cấu trúc `meta`, tiền tệ cent). Không chứa tên bài toán hay con số cụ thể. | **Đúng**: Khớp chính xác với các quy ước bắt buộc của bot đánh giá Acme được trích xuất từ phản hồi `detail`. | Độ dài 12 dòng. `description`: *"Use when ensuring compliance with organizational coding and documentation standards."* (rõ ràng). `skills_read`: 0. |
+| `csv-formatting-guidelines` | **Tổng quát**: Hướng dẫn chuẩn hóa dữ liệu bảng và file CSV (chuẩn hóa tên vùng, UTC timestamp, loại bỏ dòng trùng lặp, chuẩn RFC 4180 về escape dấu ngoặc kép). | **Đúng**: Đúng chuẩn RFC 4180 và giải quyết chính xác lỗi bỏ sót escape dấu nháy kép trong docstring. | Độ dài 12 dòng. `description`: *"Use when creating or modifying CSV files to meet organizational standards."*. `skills_read`: 0. |
+| `error-logging-standards` | **Tổng quát**: Hướng dẫn chuẩn hóa tệp đầu ra của tác vụ xử lý log (cấu trúc `schema_version: 2`, `generated_by: log-triage`, sắp xếp tăng dần theo service và timestamp, tên service gạch dưới). | **Đúng**: Đúng 100% các quy ước của bot kiểm tra log Acme. | Độ dài 12 dòng. `description`: *"Use when processing and logging error data to ensure compliance with organizational standards."*. `skills_read`: 0. |
 
 ## 7. Kết quả so sánh (Phần 4.3, 4.4)
 
